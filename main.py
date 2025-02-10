@@ -9,6 +9,8 @@ import json
 import os
 import datetime
 import requests
+from astrbot.api.message_components import Plain  # 导入 Plain
+
 
 logger = logging.getLogger("astrbot")
 
@@ -44,9 +46,10 @@ class GroupSummaryPlugin(Star):
         return event.plain_result("")
 
     async def send_summary(self, event: AstrMessageEvent):
-        summary = await self.generate_summary(self.messages, event.session_id) # 传递 session_id
+        summary = await self.generate_summary(self.messages, event.session_id)
         weather_info = await self.get_weather(self.config["weather_location"])
-        await event.send(f"群聊总结：\n{summary}\n当前地区天气：{weather_info}")
+        message_chain = [Plain(f"群聊总结：\n{summary}\n当前地区天气：{weather_info}")]  # 使用 Plain
+        await event.send(message_chain)
 
     async def generate_summary(self, messages: List[str], session_id: str) -> str: #接收session_id
         # 使用LLM生成总结
