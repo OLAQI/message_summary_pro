@@ -30,7 +30,7 @@ class GroupSummaryPlugin(Star):
     async def on_group_message(self, event: AstrMessageEvent) -> MessageEventResult:
         self.message_count += 1
         # 确保添加到 messages 列表中的元素是字符串
-        self.messages.append(event.message_obj.raw_message)
+        self.messages.append(event.message_str)  # 使用 event.message_str
 
         # 检查是否达到总结条件
         if self.message_count >= self.config["message_count"]:
@@ -38,7 +38,7 @@ class GroupSummaryPlugin(Star):
             self.reset_counters()
 
         # 检查是否触发命令词
-        if self.config["trigger_command"] in event.message_obj.raw_message:
+        if self.config["trigger_command"] in event.message_str: #使用event.message_str
             await self.send_summary(event)
 
         return event.plain_result("")
