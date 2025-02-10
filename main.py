@@ -12,7 +12,7 @@ import requests
 
 logger = logging.getLogger("astrbot")
 
-@register("group_summary", "yourname", "一个群聊总结插件", "1.0.0")
+@register("Message_Summary", "OLAQI", "群聊消息总结插件", "1.0.1", "https://github.com/OLAQI/message_summary_pro")
 class GroupSummaryPlugin(Star):
     def __init__(self, context: Context, config: dict):
         super().__init__(context)
@@ -44,17 +44,17 @@ class GroupSummaryPlugin(Star):
         return event.plain_result("")
 
     async def send_summary(self, event: AstrMessageEvent):
-        summary = await self.generate_summary(self.messages)
+        summary = await self.generate_summary(self.messages, event.session_id) # 传递 session_id
         weather_info = await self.get_weather(self.config["weather_location"])
         await event.send(f"群聊总结：\n{summary}\n当前地区天气：{weather_info}")
 
-    async def generate_summary(self, messages: List[str]) -> str:
+    async def generate_summary(self, messages: List[str], session_id: str) -> str: #接收session_id
         # 使用LLM生成总结
         provider = self.context.get_using_provider()
         if provider:
             # 确保 messages 列表中的元素是字符串
             prompt = f"请根据以下群聊内容生成一个简洁的总结：\n{' '.join(messages)}"
-            response = await provider.text_chat(prompt, session_id=event.session_id)
+            response = await provider.text_chat(prompt, session_id=session_id) # 使用传入的 session_id
             return response.completion_text
         else:
             return "无法生成总结，请检查LLM配置。"
