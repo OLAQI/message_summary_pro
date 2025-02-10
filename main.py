@@ -9,7 +9,7 @@ import json
 import os
 import datetime
 import requests
-from astrbot.api.message_components import Plain, MessageChain  # 导入 Plain 和 MessageChain
+from astrbot.api.all import Plain, MessageChain  # 从 astrbot.api.all 导入 Plain 和 MessageChain
 
 logger = logging.getLogger("astrbot")
 
