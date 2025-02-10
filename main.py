@@ -9,8 +9,7 @@ import json
 import os
 import datetime
 import requests
-from astrbot.api.message_components import Plain  # 导入 Plain
-
+from astrbot.api.message_components import Plain, MessageChain  # 导入 Plain 和 MessageChain
 
 logger = logging.getLogger("astrbot")
 
@@ -40,7 +39,7 @@ class GroupSummaryPlugin(Star):
             self.reset_counters()
 
         # 检查是否触发命令词
-        if self.config["trigger_command"] in event.message_str: #使用event.message_str
+        if self.config["trigger_command"] in event.message_str:  # 使用 event.message_str
             await self.send_summary(event)
 
         return event.plain_result("")
@@ -48,16 +47,16 @@ class GroupSummaryPlugin(Star):
     async def send_summary(self, event: AstrMessageEvent):
         summary = await self.generate_summary(self.messages, event.session_id)
         weather_info = await self.get_weather(self.config["weather_location"])
-        message_chain = [Plain(f"群聊总结：\n{summary}\n当前地区天气：{weather_info}")]  # 使用 Plain
+        message_chain = MessageChain([Plain(f"群聊总结：\n{summary}\n当前地区天气：{weather_info}")])  # 使用 MessageChain
         await event.send(message_chain)
 
-    async def generate_summary(self, messages: List[str], session_id: str) -> str: #接收session_id
+    async def generate_summary(self, messages: List[str], session_id: str) -> str:  # 接收 session_id
         # 使用LLM生成总结
         provider = self.context.get_using_provider()
         if provider:
             # 确保 messages 列表中的元素是字符串
             prompt = f"请根据以下群聊内容生成一个简洁的总结：\n{' '.join(messages)}"
-            response = await provider.text_chat(prompt, session_id=session_id) # 使用传入的 session_id
+            response = await provider.text_chat(prompt, session_id=session_id)  # 使用传入的 session_id
             return response.completion_text
         else:
             return "无法生成总结，请检查LLM配置。"
