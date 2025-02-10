@@ -33,21 +33,19 @@ class GroupSummaryPlugin(Star):
 
         # 检查是否达到总结条件
         if self.message_count >= self.config["message_count"]:
-            async for ret in self.send_summary(event):
-                yield ret
+            await self.send_summary(event)
             self.reset_counters()
 
         # 检查是否触发命令词
         if self.config["trigger_command"] in event.message_obj.raw_message:
-            async for ret in self.send_summary(event):
-                yield ret
+            await self.send_summary(event)
 
         return event.plain_result("")
 
     async def send_summary(self, event: AstrMessageEvent):
         summary = await self.generate_summary(self.messages)
         weather_info = await self.get_weather(self.config["weather_location"])
-        yield event.plain_result(f"群聊总结：\n{summary}\n当前地区天气：{weather_info}")
+        await event.send(f"群聊总结：\n{summary}\n当前地区天气：{weather_info}")
 
     async def generate_summary(self, messages: List[str]) -> str:
         # 使用LLM生成总结
@@ -66,8 +64,7 @@ class GroupSummaryPlugin(Star):
     async def send_daily_summary(self):
         for group_id in self.context.groups:
             event = AstrMessageEvent(group_id=group_id, message_str="")
-            async for ret in self.send_summary(event):
-                yield ret
+            await self.send_summary(event)
 
     @command("summary_help")
     async def summary_help(self, event: AstrMessageEvent):
@@ -86,7 +83,7 @@ class GroupSummaryPlugin(Star):
 4. 帮助信息：
    - /summary_help - 显示此帮助信息。
 """
-        yield event.plain_result(help_text)
+        await event.send(help_text)
 
     async def get_weather(self, location: str) -> str:
         """获取天气信息"""
