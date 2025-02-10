@@ -1,7 +1,7 @@
 import logging
 from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
 from astrbot.api.star import Context, Star, register
-from astrbot.api.event.filter import event_message_type, EventMessageType, command  # 导入 command 装饰器
+from astrbot.api.event.filter import event_message_type, EventMessageType, command
 from astrbot.api.provider import ProviderRequest
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from typing import List, Dict
@@ -12,7 +12,7 @@ import requests
 
 logger = logging.getLogger("astrbot")
 
-@register("Message_Summary", "OLAQI", "群聊消息总结插件", "1.0.1", "https://github.com/OLAQI/message_summary_pro")
+@register("Message_Summary", "OLAQI", "群聊消息总结插件", "1.0.0", "https://github.com/OLAQI/message_summary_pro")
 class GroupSummaryPlugin(Star):
     def __init__(self, context: Context, config: dict):
         super().__init__(context)
@@ -33,12 +33,14 @@ class GroupSummaryPlugin(Star):
 
         # 检查是否达到总结条件
         if self.message_count >= self.config["message_count"]:
-            await self.send_summary(event)
+            async for ret in self.send_summary(event):
+                yield ret
             self.reset_counters()
 
         # 检查是否触发命令词
         if self.config["trigger_command"] in event.message_obj.raw_message:
-            await self.send_summary(event)
+            async for ret in self.send_summary(event):
+                yield ret
 
         return event.plain_result("")
 
@@ -46,7 +48,6 @@ class GroupSummaryPlugin(Star):
         summary = await self.generate_summary(self.messages)
         weather_info = await self.get_weather(self.config["weather_location"])
         yield event.plain_result(f"群聊总结：\n{summary}\n当前地区天气：{weather_info}")
-        self.reset_counters()
 
     async def generate_summary(self, messages: List[str]) -> str:
         # 使用LLM生成总结
@@ -65,9 +66,10 @@ class GroupSummaryPlugin(Star):
     async def send_daily_summary(self):
         for group_id in self.context.groups:
             event = AstrMessageEvent(group_id=group_id, message_str="")
-            await self.send_summary(event)
+            async for ret in self.send_summary(event):
+                yield ret
 
-    @command("summary_help")  # 确保这里使用的是导入的 command 装饰器
+    @command("summary_help")
     async def summary_help(self, event: AstrMessageEvent):
         help_text = """总结插件使用帮助：
 1. 自动总结：
