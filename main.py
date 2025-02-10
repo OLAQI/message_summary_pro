@@ -1,7 +1,7 @@
 import logging
+from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
 from astrbot.api.star import Context, Star, register
-from astrbot.api.event import AstrMessageEvent, MessageEventResult
-from astrbot.api.event.filter import event_message_type, EventMessageType
+from astrbot.api.event.filter import event_message_type, EventMessageType, command  # 导入 command 装饰器
 from astrbot.api.provider import ProviderRequest
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from typing import List, Dict
@@ -12,7 +12,7 @@ import requests
 
 logger = logging.getLogger("astrbot")
 
-@register("Message_Summary", "OLAQI", "群聊消息总结插件", "1.0.1", "https://github.com/OLAQI/message_summary_pro")
+@register("Message_Summary", "OLAQI", "群聊消息总结插件", "1.0.0", "https://github.com/OLAQI/message_summary_pro")
 class GroupSummaryPlugin(Star):
     def __init__(self, context: Context, config: dict):
         super().__init__(context)
@@ -67,7 +67,7 @@ class GroupSummaryPlugin(Star):
             event = AstrMessageEvent(group_id=group_id, message_str="")
             await self.send_summary(event)
 
-    @command("summary_help")
+    @command("summary_help")  # 确保这里使用的是导入的 command 装饰器
     async def summary_help(self, event: AstrMessageEvent):
         help_text = """总结插件使用帮助：
 1. 自动总结：
