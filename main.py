@@ -12,7 +12,7 @@ import requests
 
 logger = logging.getLogger("astrbot")
 
-@register("Message_Summary", "OLAQI", "群聊消息总结插件", "1.0.0", "https://github.com/OLAQI/message_summary_pro")
+@register("group_summary", "yourname", "一个群聊总结插件", "1.0.0")
 class GroupSummaryPlugin(Star):
     def __init__(self, context: Context, config: dict):
         super().__init__(context)
