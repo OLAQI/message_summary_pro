@@ -29,6 +29,7 @@ class GroupSummaryPlugin(Star):
     @event_message_type(EventMessageType.GROUP_MESSAGE)
     async def on_group_message(self, event: AstrMessageEvent) -> MessageEventResult:
         self.message_count += 1
+        # 确保添加到 messages 列表中的元素是字符串
         self.messages.append(event.message_obj.raw_message)
 
         # 检查是否达到总结条件
@@ -51,6 +52,7 @@ class GroupSummaryPlugin(Star):
         # 使用LLM生成总结
         provider = self.context.get_using_provider()
         if provider:
+            # 确保 messages 列表中的元素是字符串
             prompt = f"请根据以下群聊内容生成一个简洁的总结：\n{' '.join(messages)}"
             response = await provider.text_chat(prompt, session_id=event.session_id)
             return response.completion_text
