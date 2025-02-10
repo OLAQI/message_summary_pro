@@ -13,7 +13,7 @@ from astrbot.api.all import Plain, MessageChain  # 从 astrbot.api.all 导入 Pl
 
 logger = logging.getLogger("astrbot")
 
-@register("Message_Summary", "OLAQI", "群聊消息总结插件", "1.0.1", "https://github.com/OLAQI/message_summary_pro")
+@register("Message_Summary", "OLAQI", "群聊消息总结插件", "1.0.2", "https://github.com/OLAQI/message_summary_pro")
 class GroupSummaryPlugin(Star):
     def __init__(self, context: Context, config: dict):
         super().__init__(context)
@@ -47,7 +47,7 @@ class GroupSummaryPlugin(Star):
     async def send_summary(self, event: AstrMessageEvent):
         summary = await self.generate_summary(self.messages, event.session_id)
         weather_info = await self.get_weather(self.config["weather_location"])
-        message_chain = MessageChain([Plain(f"群聊总结：\n{summary}\n当前地区天气：{weather_info}")])  # 使用 MessageChain
+        message_chain = MessageChain([Plain(f"群聊总结：\n{summary}\n当前地区 {self.config['weather_location']} 的天气：{weather_info}")])  # 包含地区名称
         await event.send(message_chain)
 
     async def generate_summary(self, messages: List[str], session_id: str) -> str:  # 接收 session_id
@@ -99,8 +99,9 @@ class GroupSummaryPlugin(Star):
         response = requests.get(url)
         data = response.json()
         if data["status"] == "1":
-            weather = data["lives"][0]["weather"]
-            temperature = data["lives"][0]["temperature"]
+            lives = data["lives"][0]
+            weather = lives["weather"]
+            temperature = lives["temperature"]
             return f"{weather}，温度：{temperature}℃"
         else:
             return "无法获取天气信息，请检查配置。"
