@@ -1,6 +1,11 @@
-name: helloworld # 这是你的插件的唯一识别名。
-desc: 这是 AstrBot 的默认插件，支持关键词回复。 # 插件简短描述
-help: 输入 /keyword 查看关键词回复帮助。 # 插件的帮助信息
-version: v1.3 # 插件版本号。格式：v1.1.1 或者 v1.1
-author: Soulter # 作者
-repo: https://github.com/Soulter/helloworld # 插件的仓库地址
+name: message_summary
+desc: 群聊消息总结插件，支持自动、定时和命令触发
+help: |-  # 帮助信息（支持多行）
+  群聊消息总结插件使用说明：
+    - 当群消息达到设定条数时自动总结（立即模式）。
+    - 每天固定时间发送总结（每日模式）。
+    - 使用命令 /summary 手动触发总结。
+    - 通过管理面板配置插件参数。
+version: v1.1.0
+author: OLAQI
+repo: https://github.com/OLAQI/message_summary
